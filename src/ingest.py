@@ -1,5 +1,10 @@
+import os
 import requests
+from dotenv import load_dotenv
 from src.db import get_conn, init_db
+
+load_dotenv()
+
 
 def fetch_remotive(search="data", limit=50):
     r = requests.get(
@@ -24,6 +29,35 @@ def fetch_remotive(search="data", limit=50):
         })
     return jobs
 
+
+def fetch_adzuna(what="data scientist", country="in", pages=2):
+    app_id = os.getenv("ADZUNA_APP_ID")
+    app_key = os.getenv("ADZUNA_APP_KEY")
+    jobs = []
+    for page in range(1, pages + 1):
+        r = requests.get(
+            f"https://api.adzuna.com/v1/api/jobs/{country}/search/{page}",
+            params={"app_id": app_id, "app_key": app_key,
+                    "what": what, "results_per_page": 50},
+            timeout=30,
+        )
+        r.raise_for_status()
+        for j in r.json()["results"]:
+            jobs.append({
+                "id": f"adzuna-{j['id']}",
+                "source": "Adzuna",
+                "title": j["title"],
+                "company": j.get("company", {}).get("display_name"),
+                "location": j.get("location", {}).get("display_name"),
+                "description": j["description"],
+                "salary_min": j.get("salary_min"),
+                "salary_max": j.get("salary_max"),
+                "url": j["redirect_url"],
+                "posted_at": j["created"],
+            })
+    return jobs
+
+
 def save(jobs):
     cols = ["id", "source", "title", "company", "location", "description",
             "salary_min", "salary_max", "url", "posted_at"]
@@ -33,7 +67,7 @@ def save(jobs):
             conn.execute(sql, [job[c] for c in cols])
     return len(jobs)
 
+
 if __name__ == "__main__":
     init_db()
-    jobs = fetch_remotive("data")
-    print("Saved from Remotive:", save(jobs))
+    print("Adzuna:", save(fetch_adzuna("data scientist")))
