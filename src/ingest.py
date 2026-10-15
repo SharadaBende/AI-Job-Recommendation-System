@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from dotenv import load_dotenv
 from src.db import get_conn, init_db
@@ -68,6 +69,16 @@ def save(jobs):
     return len(jobs)
 
 
+QUERIES = [
+    "data scientist",
+    "machine learning engineer",
+    "data analyst",
+    "AI engineer",
+    "NLP engineer",
+]
+
 if __name__ == "__main__":
     init_db()
-    print("Adzuna:", save(fetch_adzuna("data scientist")))
+    for q in QUERIES:
+        print(f"{q}: {save(fetch_adzuna(q, pages=2))}")
+        time.sleep(1)
