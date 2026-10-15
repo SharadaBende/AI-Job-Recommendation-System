@@ -11,24 +11,24 @@ PERSONAS = {
 
 df = pd.read_csv(PATH, encoding="utf-8-sig")
 todo = df[df["relevance"].isna()]
-print(f"{len(todo)} left to label. Enter 0, 1 or 2 (s = skip, q = save and quit)\n")
+print(f"{len(todo)} left to label. Enter 0, 1 or 2 (q = save and quit)\n")
 
-for idx, r in todo.iterrows():
+for n, (idx, r) in enumerate(todo.iterrows(), 1):
     print("-" * 70)
-    print(f"PERSONA: {r['persona']}  ({PERSONAS[r['persona']]})")
+    print(f"[{n}/{len(todo)}] PERSONA: {r['persona']}  ({PERSONAS[r['persona']]})")
     print(f"JOB:     {r['title']} | {r['company']} | {r['location']}")
     print(f"SNIPPET: {r['snippet']}")
     while True:
-        a = input("score (0/1/2, s, q): ").strip().lower()
+        a = input("score (0/1/2, q): ").strip().lower()
         if a in ("0", "1", "2"):
             df.loc[idx, "relevance"] = int(a)
-            break
-        if a == "s":
+            df.to_csv(PATH, index=False, encoding="utf-8-sig")
             break
         if a == "q":
-            df.to_csv(PATH, index=False, encoding="utf-8-sig")
-            print("Saved. Run again to continue.")
+            left = df["relevance"].isna().sum()
+            print(f"Saved. {left} still unlabeled. Run again to continue.")
             raise SystemExit
-    df.to_csv(PATH, index=False, encoding="utf-8-sig")   # save after every answer
+        print("Please type 0, 1 or 2.")
 
-print("Done. All rows labeled.")
+left = df["relevance"].isna().sum()
+print("Done. All rows labeled." if left == 0 else f"{left} rows still unlabeled.")
