@@ -27,8 +27,7 @@ def recommend(resume_text, k=10):
 
 
 if __name__ == "__main__":
-    pd_opts = {"display.max_colwidth": 40, "display.width": 200}
-    import pandas as pd
-    for k, v in pd_opts.items():
-        pd.set_option(k, v)
-    print(recommend(SAMPLE_RESUME)[["title_clean", "company", "location", "score"]])
+    results = recommend(SAMPLE_RESUME)
+    for i, (_, r) in enumerate(results.iterrows(), 1):
+        print(f"{i}. {r['title_clean']} | {r['company']} | {r['location']} | score {r['score']}")
+        print(f"   {r['url']}")
