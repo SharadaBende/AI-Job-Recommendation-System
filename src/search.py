@@ -4,7 +4,7 @@ from src.features import job_years
 
 def search(resume_text, k=10, cities=None, max_years=None):
     """Semantic search, then optional filters on city and experience."""
-    results = sem_rec(resume_text, k=100)
+    results = sem_rec(resume_text, k=len(jobs))
     keep = []
     for _, r in results.iterrows():
         j = jobs[jobs["url"] == r["url"]].iloc[0]

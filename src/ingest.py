@@ -70,15 +70,16 @@ def save(jobs):
 
 
 QUERIES = [
-    "data scientist",
-    "machine learning engineer",
-    "data analyst",
-    "AI engineer",
-    "NLP engineer",
+    "data engineer",
+    "generative AI engineer",
+    "deep learning engineer",
+    "computer vision engineer",
+    "MLOps engineer",
+    "business intelligence analyst",
 ]
 
 if __name__ == "__main__":
     init_db()
     for q in QUERIES:
-        print(f"{q}: {save(fetch_adzuna(q, pages=2))}")
+        print(f"{q}: {save(fetch_adzuna(q, pages=3))}")
         time.sleep(1)
