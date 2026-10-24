@@ -2,6 +2,8 @@
 
 Paste a resume or short profile and get matching jobs from India, with the skills you already have and the skills you are missing for each job.
 
+![App screenshot](docs/screenshot.png)
+
 ## What it does
 - Collects real job postings from the Adzuna and Remotive APIs
 - Cleans the text and stores it in SQLite
