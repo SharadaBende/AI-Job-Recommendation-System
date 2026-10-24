@@ -3,9 +3,13 @@ import pandas as pd
 from src.personas import PERSONAS
 from src.baseline import recommend as tfidf_rec
 from src.semantic import recommend as sem_rec
+from src.rerank import recommend as rerank_rec
 
 labels = pd.read_csv("data/labels_done.csv", encoding="utf-8-sig")
 assert labels["relevance"].notna().all(), "Some rows are still unlabeled."
+
+YEARS = {"fresher_nlp": 0, "data_analyst": 2, "senior_ml": 6,
+         "computer_vision": 3, "data_engineer": 3}
 
 
 def dcg(rels):
@@ -17,7 +21,7 @@ def evaluate(rec, k=10):
     rows = []
     for name, text in PERSONAS.items():
         pool = labels[labels["persona"] == name].set_index("url")["relevance"]
-        top = rec(text, k=k)["url"].tolist()
+        top = rec(name, text, k)["url"].tolist()
         rels = [pool.get(u, 0) for u in top]
         ideal = sorted(pool.tolist(), reverse=True)[:k]
         rows.append({
@@ -34,7 +38,9 @@ def evaluate(rec, k=10):
 if __name__ == "__main__":
     pd.set_option("display.width", 200)
     pd.set_option("display.max_columns", None)
-    print("=== TF-IDF baseline ===")
-    print(evaluate(tfidf_rec))
-    print("\n=== Semantic (MiniLM embeddings) ===")
-    print(evaluate(sem_rec))
+    print("=== TF-IDF ===")
+    print(evaluate(lambda n, t, k: tfidf_rec(t, k=k)))
+    print("\n=== Semantic ===")
+    print(evaluate(lambda n, t, k: sem_rec(t, k=k)))
+    print("\n=== Semantic + re-ranker (level + location) ===")
+    print(evaluate(lambda n, t, k: rerank_rec(t, candidate_years=YEARS[n], k=k)))
