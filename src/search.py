@@ -1,10 +1,9 @@
 from src.semantic import recommend as sem_rec, jobs
+from src.features import job_years
 
 
 def search(resume_text, k=10, cities=None, max_years=None):
     """Semantic search, then optional filters on city and experience."""
-    from src.features import job_years
-
     results = sem_rec(resume_text, k=100)
     keep = []
     for _, r in results.iterrows():
@@ -17,6 +16,7 @@ def search(resume_text, k=10, cities=None, max_years=None):
             yrs = job_years(j["title_clean"], j["description_clean"])
             if yrs is not None and yrs > max_years:
                 continue
+        r["description"] = j["description_clean"]
         keep.append(r)
         if len(keep) == k:
             break
